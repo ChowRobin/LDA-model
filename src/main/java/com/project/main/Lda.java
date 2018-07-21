@@ -59,7 +59,6 @@ public class Lda {
 
     public static void main(String[] args) throws IOException, BiffException {
         String originalDocsPath = PathConfig.LdaDocsPath;
-        String originalXlsPath = PathConfig.LdaXlsPath;
         String resultPath = PathConfig.LdaResultsPath;
         String parameterFile = ConstantConfig.LDAPARAMETERFILE;
 
@@ -72,6 +71,7 @@ public class Lda {
         getParametersFromFile(ldaparameters, parameterFile);
         Documents docSet = new Documents();
         docSet.readDocs(originalDocsPath);
+        docSet.filter(500);
         System.out.println("wordMap size is " + docSet.wordIndexMap.size());
         FileUtil.mkdir(new File(resultPath));
         Model model = new Model(ldaparameters);
@@ -82,5 +82,16 @@ public class Lda {
         System.out.println("3 Output the final model ...");
         model.saveIteratedModel(ldaparameters.iteration, docSet);
         System.out.println("Done!");
+
+        int maxCountNum = 0;
+        String word = null;
+        for (String w : docSet.wordCountMap.keySet()) {
+            int count = docSet.wordCountMap.get(w);
+            if (count > maxCountNum) {
+                maxCountNum = count;
+                word = w;
+            }
+        }
+        System.out.println(word + "=>" + maxCountNum);
     }
 }

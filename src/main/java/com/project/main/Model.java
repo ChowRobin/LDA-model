@@ -164,7 +164,6 @@ public class Model {
 
     public void saveIteratedModel(int iters, Documents docSet) throws IOException {
         //lda.params lda.phi lda.theta lda.tassign lda.twords
-        //lda.params
         String resPath = PathConfig.LdaResultsPath;
         String modelName = "lda_" + iters;
         ArrayList<String> lines = new ArrayList<String>();

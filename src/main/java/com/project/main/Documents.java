@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +39,36 @@ public class Documents {
             Document doc = new Document(docName, docLines, wordIndexMap, wordList, wordCountMap);
             docs.add(doc);
         }
+    }
+
+    public void filter(int upper) {
+        List<String> deletedList = new ArrayList<String>();
+        for (String word : wordList) {
+            if (wordCountMap.get(word) > upper) {
+                deletedList.add(word);
+            }
+        }
+        Map<String, Integer> newWordIndexMap = new HashMap<String, Integer>();
+        List<String> wordListCopy = new ArrayList<String>();
+        for (String word : wordList) {
+            wordListCopy.add(word);
+        }
+        for (String word : deletedList) {
+            wordCountMap.remove(word);
+            wordList.remove(word);
+        }
+        for (int i = 0; i < wordList.size(); ++i) {
+            newWordIndexMap.put(wordList.get(i), i);
+        }
+        for (Document doc : docs) {
+            for (int i = 0; i < doc.docWords.length; ++i) {
+                Integer newIndex = newWordIndexMap.get(wordListCopy.get(doc.docWords[i]));
+                if (newIndex != null) {
+                    doc.docWords[i] = newIndex;
+                }
+            }
+        }
+        wordIndexMap = newWordIndexMap;
     }
 
     public void transXls(String xlsPath, String targetDir, ArrayList<String> cols) throws IOException, BiffException {
