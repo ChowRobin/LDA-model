@@ -14,6 +14,12 @@ import java.util.ArrayList;
 public class Lda {
 
     private static final Logger logger = LoggerFactory.getLogger(Lda.class);
+    private static String originalDocsPath = PathConfig.LdaDocsPath;
+    private static String originalXlsPath = PathConfig.LdaXlsPath;
+    private static String resultPath = PathConfig.LdaResultsPath;
+    private static String parameterFile = ConstantConfig.LDAPARAMETERFILE;
+    private static String tokensPath = PathConfig.LdaTokensPath;
+
 
     public static class modelparameters {
         float alpha = 0.5f; // usual value if 50 / K
@@ -57,21 +63,31 @@ public class Lda {
         }
     }
 
-    public static void main(String[] args) throws IOException, BiffException {
-        String originalDocsPath = PathConfig.LdaDocsPath;
-        String resultPath = PathConfig.LdaResultsPath;
-        String parameterFile = ConstantConfig.LDAPARAMETERFILE;
+    public static void readFromXls() throws IOException, BiffException {
+        Documents documents = new Documents();
+        ArrayList<String> cols = new ArrayList<String>();
+        cols.add("abstract");
+        documents.transXls(originalXlsPath, tokensPath, cols);
+    }
 
-//        Documents documents = new Documents();
-//        ArrayList<String> cols = new ArrayList<String>();
-//        cols.add("sovereignty");
-//        documents.transXls(originalXlsPath, originalDocsPath, cols);
+    public static void readFromDocs() {
+        Documents documents = new Documents();
+        documents.transDocs(originalDocsPath, tokensPath);
+    }
+
+    public static void main(String[] args) throws IOException, BiffException {
+
+        if (args.length != 0 && args[0].equals("doc")) {
+            readFromDocs();
+        } else if (args.length != 0 && args[0].equals("xls")) {
+            readFromXls();
+        }
 
         modelparameters ldaparameters = new modelparameters();
         getParametersFromFile(ldaparameters, parameterFile);
         Documents docSet = new Documents();
-        docSet.readDocs(originalDocsPath);
-        docSet.filter(500);
+        docSet.readDocs(tokensPath);
+        docSet.filter(50);
         System.out.println("wordMap size is " + docSet.wordIndexMap.size());
         FileUtil.mkdir(new File(resultPath));
         Model model = new Model(ldaparameters);
@@ -88,6 +104,7 @@ public class Lda {
         for (String w : docSet.wordCountMap.keySet()) {
             int count = docSet.wordCountMap.get(w);
             if (count > maxCountNum) {
+
                 maxCountNum = count;
                 word = w;
             }

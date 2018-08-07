@@ -42,12 +42,15 @@ public class Documents {
     }
 
     public void filter(int upper) {
+        // list of words should delete
         List<String> deletedList = new ArrayList<String>();
+        // add word to deletelist
         for (String word : wordList) {
             if (wordCountMap.get(word) > upper) {
                 deletedList.add(word);
             }
         }
+        // new map of word index
         Map<String, Integer> newWordIndexMap = new HashMap<String, Integer>();
         List<String> wordListCopy = new ArrayList<String>();
         for (String word : wordList) {
@@ -73,20 +76,29 @@ public class Documents {
 
     public void transXls(String xlsPath, String targetDir, ArrayList<String> cols) throws IOException, BiffException {
         for (File xlsFile : new File(xlsPath).listFiles()) {
-//            System.out.println(xlsFile.getName());
             String xlsName = xlsFile.getAbsolutePath();
             ArrayList<String> docLines = new ArrayList<String>();
             FileUtil.readXls(xlsName, cols, docLines);
-            int count = 0;
             ArrayList<String> words = new ArrayList<String>();
-            for (String line: docLines) {
-                FileUtil.tokenizeByWord(line, words);
-                logger.debug(++count + " line has tokenized.");
-            }
-            logger.debug("all line have tokenized.");
-//            System.out.println(xlsFile.getName().split("\\.")[0]);
-            FileUtil.writeLines(targetDir + xlsFile.getName().split("\\.")[0], words);
+            trans(docLines, words, targetDir + xlsFile.getName().split("\\.")[0]);
         }
+    }
+
+    public void transDocs(String docsPath, String targetDir) {
+        for (File docFile : new File(docsPath).listFiles()) {
+            String docName = docFile.getAbsolutePath();
+            ArrayList<String> docLines = new ArrayList<String>();
+            FileUtil.readLines(docName, docLines);
+            ArrayList<String> words = new ArrayList<String>();
+            trans(docLines, words, targetDir + docFile.getName().split("\\.")[0]);
+        }
+    }
+
+    private void trans(ArrayList<String> docLines, ArrayList<String> words, String target) {
+        for (String line: docLines) {
+            FileUtil.tokenizeByWord(line, words);
+        }
+        FileUtil.writeLines(target, words);
     }
 
     public static class Document {
@@ -97,10 +109,10 @@ public class Documents {
             this.docName = docName;
             //Read file and initialize word index array
             ArrayList<String> words = new ArrayList<String>();
-            FileUtil.readLines(docName, docLines);
-            for(String line : docLines) {
-                FileUtil.tokenize(line, words);
-            }
+            words = docLines;
+//            for(String line : docLines) {
+//                FileUtil.tokenize(line, words);
+//            }
             //Remove stop words and noise words
 //            for (int i = 0; i < words.size(); ++i) {
 //                if (StopWords.isStopWord(words.get(i)) || isNoiseWord(words.get(i))) {
@@ -117,13 +129,14 @@ public class Documents {
                     int newIndex = wordIndexMap.size();
                     wordIndexMap.put(word, newIndex);
                     wordList.add(word);
-                    wordCountMap.put(word, new Integer(1));
+                    wordCountMap.put(word, 1);
                     docWords[i] = newIndex;
                 } else {
                     docWords[i] = wordIndexMap.get(word);
                     wordCountMap.put(word, wordCountMap.get(word) + 1);
                 }
             }
+//            logger.info("父亲" + wordCountMap.get("父亲"));
             words.clear();
         }
 

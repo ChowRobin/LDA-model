@@ -7,4 +7,6 @@ public class PathConfig {
     public static String LdaXlsPath = "data/LdaOriginalXls/";
 
     public static String LdaResultsPath = "data/LdaResults/";
+
+    public static String LdaTokensPath = "data/LdaTokens/";
 }
